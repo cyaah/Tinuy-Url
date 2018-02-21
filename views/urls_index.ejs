@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>TinyApp</title>
+</head>
+<body>
+	<header><% include ./partials/_header.ejs %></header>
+<table>
+      <thread>
+        <tr>
+          <th>Shortened</th>
+          <th>Full URL</th>
+        </tr>
+      </thread>
+      <tbody>
+        <% for(let X in urls) { %>
+        <tr>
+          <td><%= X %></td>
+          <td><%= urls[X] %></td>
+        </tr>
+        <% } %>
+      </tbody>
+      </td>
+</table>
+
+<p><a href="#">Create a new short URL</a></p>
+</body>
+
+</html>
