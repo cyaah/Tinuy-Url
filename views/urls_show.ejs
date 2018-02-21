@@ -5,8 +5,12 @@
 </head>
 <body>
   <header><% include ./partials/_header.ejs %></header>
-<P><%=shortURL %></P>
-<p><%= urls %></p>
+<h2><%=shortURL %> : <%= urls %></h2>
+<form method="POST" action="/urls/<%= shortURL %>">
+	   <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">    <button> update </button>
+
+
+</form>
 
 
 </body>

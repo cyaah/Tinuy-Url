@@ -6,17 +6,24 @@
 <body>
 	<header><% include ./partials/_header.ejs %></header>
 <table>
-      <thread>
+      <thead>
         <tr>
           <th>Shortened</th>
           <th>Full URL</th>
         </tr>
-      </thread>
+      </thead>
       <tbody>
         <% for(let X in urls) { %>
         <tr>
           <td><%= X %></td>
           <td><%= urls[X] %></td>
+          
+          <td>
+          	<form method="POST" action="/urls/<%=X %>/delete">
+          		<a href="http://localhost:8080/urls/<%= X %>"> edit </a>
+          		<button>Delete</button>
+          	</form>
+          </td>
         </tr>
         <% } %>
       </tbody>
@@ -24,6 +31,8 @@
 </table>
 
 <p><a href="#">Create a new short URL</a></p>
+
+<form method="POST" action="/urls/9sm5xK/delete">...</form>
 </body>
 
 </html>

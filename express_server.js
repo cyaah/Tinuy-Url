@@ -54,7 +54,17 @@ app.get("/u/:shortURL", (req, res) => {
   console.log(longURL);
   res.redirect(longURL);
 });
+//Deleting the url
+app.post("/urls/:id/delete", (req, res) => {
+	delete urlDatabase[req.params.id];
+	res.redirect("/urls");
+});
 
+app.post("/urls/:id", (req, res) => {
+urlDatabase[req.params.id] = req.body.longURL;
+	console.log("jaa");
+  res.redirect("/urls");
+});
 
 function generateRandomString() {
 return Math.random().toString(16).substring(2,8) 
