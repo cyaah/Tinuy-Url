@@ -8,14 +8,31 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
+//Database to store Long URLS an their short urls
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
+//Database to user information
+const users = { 
+  "user1": {
+    id: "Random1", 
+    email: "john@gmail.com", 
+    password: "purple"
+  },
+ "user2": {
+    id: "Random2", 
+    email: "bob@gmail.com", 
+    password: "dish"
+  }
+}
+
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });	
+
 
  app.get("/", (req, res) => {
    res.end("Hello!");
@@ -29,12 +46,14 @@ app.get("/hello", (req, res) => {
   res.end("<html><body>Hello <b>World</b></body></html>\n");
 });
 
- app.get("/urls", (req, res) => {
+//Gets a page that lists all the urls and their short forms and other functions like editing and deleting
+app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase,
   					 username: req.cookies["username"]}; //|| 'Anonymous' };
   //console.log('boop', templateVars, req.cookies);
   res.render("urls_index", templateVars);
 });
+
 
  app.get("/urls/:id", (req, res) => {
   let templateVars = { shortURL: req.params.id,
@@ -43,6 +62,8 @@ app.get("/hello", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+
+//Renders the page when you want to register a new user
  app.get("/new", (req, res) => {
   res.render("urls_new");
 });
@@ -92,8 +113,15 @@ app.post("/logout",(req, res) => {
 })
  
 app.post("/register", (req, res) =>{
-	res.cookie('user',req.body.email)
+	let arr = Object.keys(users);
+	let num = arr.length;
+	let user = `user${num+1}`;
+	let id = generateRandomString();	
+	 
+	 res.cookie('user',req.body.email)
 	res.cookie('password',req.body.password)
+	users[user] = {'id' : id, 'email' : req.body.email, 'password' : req.body.password }
+     console.log(users);
 	res.redirect("/urls");
 })
 
