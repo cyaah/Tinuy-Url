@@ -31,8 +31,8 @@ app.get("/hello", (req, res) => {
 
  app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase,
-  					 username: req.cookies && req.cookies.username || 'Anonymous'	 };
-  console.log('boop', templateVars, req.cookies);
+  					 username: req.cookies["username"]}; //|| 'Anonymous' };
+  //console.log('boop', templateVars, req.cookies);
   res.render("urls_index", templateVars);
 });
 
@@ -73,7 +73,12 @@ urlDatabase[req.params.id] = req.body.longURL;
 
 
 app.post("/login",(req, res) => {
-  res.cookie('username',req.body.Username)
+   res.cookie('username',req.body.Username)
+   res.redirect("/urls");
+});
+
+app.post("/logout",(req, res) => {
+   res.clearCookie('username');
    res.redirect("/urls");
 })
 

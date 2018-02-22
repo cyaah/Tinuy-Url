@@ -1,11 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head></head>
-  <body>
-    <form method="POST" action="/login">
-    	  <input id="Username" type="text" name="Username" placeholder="http://" style="width: 300px">
-    	  <input type="submit" value="Submit">
-    </form>
-    <p> <%= username %></p>
-  </body>
-</html>
+
+  	 <!--<form method="POST" action="/login"> -->
+    	<% if(!username) { %>
+       	<form method="POST" action="/login">
+    	  <input id="Username" type="text" name="Username" placeholder="User" style="width: 300px">
+    	  <input type="submit" value="Log in">
+       </form>
+       <% } %>
+    
+
+    <!--<form method="POST" actions="/logout"> -->
+    <% if(username) { %>
+      <form method="POST" action="/logout"> 
+    	<h2> Welcome <%=username %></h2>
+       <input type="Submit" value="Log out">
+         </form>
+       <% } %>
+
+
+
+
+
