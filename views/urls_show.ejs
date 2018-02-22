@@ -4,8 +4,9 @@
   <title>TinyApp</title>
 </head>
 <body>
-  <header><% include ./partials/_header.ejs %> <%= username %></header>
-<h2><%=shortURL %> : <%= urls %></h2>
+  <header><% include ./partials/_header.ejs %> <%= username %></header> 	
+<!--<h2><%=shortURL %> : <%= urls %></h2> -->
+	<h2>Add New URL</h2>
 <form method="POST" action="/urls/<%= shortURL %>">
 	   <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">    <button> update </button>
 

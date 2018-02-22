@@ -47,13 +47,21 @@ app.get("/hello", (req, res) => {
   res.render("urls_new");
 });
 
-app.post("/urls", (req, res) => {
+ app.get("/register",(req, res) => {
+
+ 	res.render("urls_register");
+ })
+
+
+//Creates a new random short url and sets it the submitted longurl
+app.post("/urls/new", (req, res) => {	
 	let shortURL = generateRandomString();
 	urlDatabase[shortURL] = req.body.longURL;
   console.log('blah', req.body);  // debug statement to see POST parameters
-  res.redirect(`urls/${shortURL}`);      // Respond with 'Ok' (we will replace this)
+  res.redirect("/urls");      // Respond with 'Ok' (we will replace this)
 });
 
+//Redirects the page to the long url page when short url is used
 app.get("/u/:shortURL", (req, res) => {
   let longURL = urlDatabase[req.params.shortURL]
   console.log(longURL);
@@ -65,23 +73,29 @@ app.post("/urls/:id/delete", (req, res) => {
 	res.redirect("/urls");
 });
 
+//Adds a new link and generating a random short url
 app.post("/urls/:id", (req, res) => {
 urlDatabase[req.params.id] = req.body.longURL;
 	console.log("jaa");
     res.redirect("/urls");
 });
 
-
+//Sets the submitted string in a cookie and shows the user is logged in"
 app.post("/login",(req, res) => {
    res.cookie('username',req.body.Username)
    res.redirect("/urls");
 });
-
+// Clears cookies after logout and redirects to main page
 app.post("/logout",(req, res) => {
    res.clearCookie('username');
    res.redirect("/urls");
 })
-
+ 
+app.post("/register", (req, res) =>{
+	res.cookie('user',req.body.email)
+	res.cookie('password',req.body.password)
+	res.redirect("/urls");
+})
 
 
 function generateRandomString() {
