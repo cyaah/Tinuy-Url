@@ -8,6 +8,31 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
+
+// Create our own middleware to check for a logged in user!
+function checkUser(req, res, next) {
+  // We want to leave /login and /signup available even if the user
+  // isn't logged in, for obvious reasons.
+  if (req.path.match(/login|register/)) {
+    next() // Execute next middleware or go to routes
+    return
+  }
+  
+  // Get user from session
+  const currentUser = req.cookies.id
+  if (currentUser) {
+    console.log('User is logged in!', currentUser)
+    req.currentUser = currentUser
+    next() // ALways call next to proceed
+  }
+  else {
+    res.redirect('/login')
+  }
+}
+app.use(checkUser)
+
+
+
 //Database to store Long URLS an their short urls
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
