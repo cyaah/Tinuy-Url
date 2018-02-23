@@ -49,8 +49,8 @@ app.get("/hello", (req, res) => {
 //Gets a page that lists all the urls and their short forms and other functions like editing and deleting
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase,
-  					 username: req.cookies["username"]}; //|| 'Anonymous' };
-  //console.log('boop', templateVars, req.cookies);
+  					   user: users[req.cookies.id]}; // req.cookies["username"]}; || 'Anonymous' };
+  console.log('boop');
   res.render("urls_index", templateVars);
 });
 
@@ -58,7 +58,7 @@ app.get("/urls", (req, res) => {
  app.get("/urls/:id", (req, res) => {
   let templateVars = { shortURL: req.params.id,
                         urls: urlDatabase[req.params.id],
-                        username: req.cookies["username"] };
+                        user: users[req.cookies.id]};    //req.cookies["username"] };
   res.render("urls_show", templateVars);
 });
 
@@ -117,12 +117,28 @@ app.post("/register", (req, res) =>{
 	let num = arr.length;
 	let user = `user${num+1}`;
 	let id = generateRandomString();	
-	 
-	 res.cookie('user',req.body.email)
-	res.cookie('password',req.body.password)
+  	let email = req.body.email
+  	let pass = req.body.password
+    res.cookie('userid',id)
+	//res.cookie('user',req.body.email)
+	//res.cookie('password',req.body.password)
+
+
+	if(email ==="" || pass===""){
+		res.status(400).send('Please enter an email and password')
+	}
+	
+	//Turning the object into an array and passing in the email to check if it exists in the newly formed array 
+	else if(Object.keys(users).map(obj => users[obj].email).includes(email)){
+		res.status(400).send('You already registered!!1')
+	}
+    
+    else{
 	users[user] = {'id' : id, 'email' : req.body.email, 'password' : req.body.password }
      console.log(users);
 	res.redirect("/urls");
+	}
+
 })
 
 
