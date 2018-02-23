@@ -1,22 +1,24 @@
 
-  	 <!--<form method="POST" action="/login"> -->
-    	<% if(!username) { %>
-       	<form method="POST" action="/login">
-    	  <input id="Username" type="text" name="Username" placeholder="User" style="width: 300px">
-    	  <input type="submit" value="Log in">
-       </form>
-       <% } %>
-    
-
     <!--<form method="POST" actions="/logout"> -->
-    <% if(username) { %>
-      <form method="POST" action="/logout"> 
-    	<h2> Welcome <%=username %></h2>
+	<!--<% if(user) { %> -->
+
+      
+
+   <!--   <% } %> -->  
+
+	<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>title</title>
+  </head>
+  <body>
+  <form method="POST" action="/logout"> 
+    	<h2> Welcome </h2>
        <input type="Submit" value="Log out">
-         </form>
-       <% } %>
+  </body>
+</html>   
 
 
-
-
-
+ <a href="http://localhost:8080/register"> Register</a>
+	<a href="http://localhost:8080/login">  Login </a>

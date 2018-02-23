@@ -17,12 +17,12 @@ var urlDatabase = {
 //Database to user information
 const users = { 
   "user1": {
-    id: "Random1", 
+    //id: "Random1", 
     email: "john@gmail.com", 
     password: "purple"
   },
  "user2": {
-    id: "Random2", 
+    //id: "Random2", 
     email: "bob@gmail.com", 
     password: "dish"
   }
@@ -69,9 +69,15 @@ app.get("/urls", (req, res) => {
 });
 
  app.get("/register",(req, res) => {
-
- 	res.render("urls_register");
+	res.render("urls_register");
  })
+
+
+app.get("/login",(req,res) =>{
+	res.render("urls_login");
+
+})
+
 
 
 //Creates a new random short url and sets it the submitted longurl
@@ -103,26 +109,44 @@ urlDatabase[req.params.id] = req.body.longURL;
 
 //Sets the submitted string in a cookie and shows the user is logged in"
 app.post("/login",(req, res) => {
-   res.cookie('username',req.body.Username)
-   res.redirect("/urls");
+	let email = req.body.email
+	let password = req.body.password
+	console.log(email);
+	console.log(password);
+    for (var uid in users) { 
+      if(email === users[uid].email) { 
+      	 if(password === users[uid].password) {
+	  	 	 console.log(users[uid].email);
+	  	 	 console.log(users[uid].password);
+   		  	res.cookie('userid', uid)
+		   res.redirect("/urls");
+
+      	 } else {
+	  	res.status(403).send("Email or Password incorrect")
+
+      	 }
+      }
+	}
+
+//res.status(403).send("Email or Password incorrect")
+
 });
 // Clears cookies after logout and redirects to main page
 app.post("/logout",(req, res) => {
-   res.clearCookie('username');
+   res.clearCookie('userid');
    res.redirect("/urls");
 })
  
 app.post("/register", (req, res) =>{
-	let arr = Object.keys(users);
-	let num = arr.length;
-	let user = `user${num+1}`;
-	let id = generateRandomString();	
+	//let arr = Object.keys(users);
+	//let num = arr.length;
+	//let user = `user${num+1}`;
+	let user = generateRandomString();	
   	let email = req.body.email
   	let pass = req.body.password
-    res.cookie('userid',id)
+    res.cookie('userid',user)
 	//res.cookie('user',req.body.email)
 	//res.cookie('password',req.body.password)
-
 
 	if(email ==="" || pass===""){
 		res.status(400).send('Please enter an email and password')
@@ -130,11 +154,11 @@ app.post("/register", (req, res) =>{
 	
 	//Turning the object into an array and passing in the email to check if it exists in the newly formed array 
 	else if(Object.keys(users).map(obj => users[obj].email).includes(email)){
-		res.status(400).send('You already registered!!1')
+		res.status(400).send('You already registered!!')
 	}
     
     else{
-	users[user] = {'id' : id, 'email' : req.body.email, 'password' : req.body.password }
+	users[user] = {'email' : req.body.email, 'password' : req.body.password }
      console.log(users);
 	res.redirect("/urls");
 	}
