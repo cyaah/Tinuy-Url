@@ -13,17 +13,18 @@ app.use(cookieParser());
 function checkUser(req, res, next) {
   // We want to leave /login and /signup available even if the user
   // isn't logged in, for obvious reasons.
-  if (req.path.match(/login|register/)) {
+  if (req.path.match(/login|register|delet/)) {
     next() // Execute next middleware or go to routes
     return
   }
   
   // Get user from session
-  const currentUser = req.cookies.id
+  const currentUser = req.cookies.userid
   if (currentUser) {
     console.log('User is logged in!', currentUser)
     req.currentUser = currentUser
-    next() // ALways call next to proceed
+    next()
+    //res.redirect('/urls') // ALways call next to proceed
   }
   else {
     res.redirect('/login')
@@ -35,8 +36,21 @@ app.use(checkUser)
 
 //Database to store Long URLS an their short urls
 var urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  //"user1" : {
+   "b2xVn2":
+   {
+   		longurl: "http://www.lighthouselabs.ca",
+   		userid : "user1"
+    },  
+     "ca2Vn2":
+   {
+   		longurl: "http://www.lighthouselabs123.ca",
+   		userid : "user1"
+    },
+   "9sm5xK":{
+        longurl: "http://www.google.com",
+        userid  : "user2"
+    }
 };
 
 //Database to user information
@@ -73,12 +87,18 @@ app.get("/hello", (req, res) => {
 
 //Gets a page that lists all the urls and their short forms and other functions like editing and deleting
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase,
-  					   user: users[req.cookies.id]}; // req.cookies["username"]}; || 'Anonymous' };
+	let filterUrls = filterByUserId(urlDatabase,req.cookies.userid)
+  let templateVars = { urls: filterUrls,
+  					   user: users[req.cookies.userid]}; // req.cookies["username"]}; || 'Anonymous' };
   console.log('boop');
+
+
   res.render("urls_index", templateVars);
 });
 
+ app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
 
  app.get("/urls/:id", (req, res) => {
   let templateVars = { shortURL: req.params.id,
@@ -89,9 +109,6 @@ app.get("/urls", (req, res) => {
 
 
 //Renders the page when you want to register a new user
- app.get("/new", (req, res) => {
-  res.render("urls_new");
-});
 
  app.get("/register",(req, res) => {
 	res.render("urls_register");
@@ -100,7 +117,7 @@ app.get("/urls", (req, res) => {
 
 app.get("/login",(req,res) =>{
 	res.render("urls_login");
-
+	
 })
 
 
@@ -108,8 +125,11 @@ app.get("/login",(req,res) =>{
 //Creates a new random short url and sets it the submitted longurl
 app.post("/urls/new", (req, res) => {	
 	let shortURL = generateRandomString();
-	urlDatabase[shortURL] = req.body.longURL;
-  console.log('blah', req.body);  // debug statement to see POST parameters
+	urlDatabase[shortURL] = {
+		"longurl" : req.body.longUrl,
+		"userid"  : req.currentUser
+	}
+  console.log('blah', req.body.longURL);  // debug statement to see POST parameters
   res.redirect("/urls");      // Respond with 'Ok' (we will replace this)
 });
 
@@ -120,7 +140,7 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 //Deleting the url
-app.post("/urls/:id/delete", (req, res) => {
+app.post("/urls/:id/delet", (req, res) => {
 	delete urlDatabase[req.params.id];
 	res.redirect("/urls");
 });
@@ -136,6 +156,7 @@ urlDatabase[req.params.id] = req.body.longURL;
 app.post("/login",(req, res) => {
 	let email = req.body.email
 	let password = req.body.password
+	let currentUser = req.body.currentUser	
 	console.log(email);
 	console.log(password);
     for (var uid in users) { 
@@ -145,10 +166,11 @@ app.post("/login",(req, res) => {
 	  	 	 console.log(users[uid].password);
    		  	res.cookie('userid', uid)
 		   res.redirect("/urls");
-
+     	  	console.log("job");
+		   
       	 } else {
 	  	res.status(403).send("Email or Password incorrect")
-
+	  	console.log("403");
       	 }
       }
 	}
@@ -159,7 +181,7 @@ app.post("/login",(req, res) => {
 // Clears cookies after logout and redirects to main page
 app.post("/logout",(req, res) => {
    res.clearCookie('userid');
-   res.redirect("/urls");
+   
 })
  
 app.post("/register", (req, res) =>{
@@ -193,4 +215,19 @@ app.post("/register", (req, res) =>{
 
 function generateRandomString() {
 return Math.random().toString(16).substring(2,8) 
+}
+
+
+function filterByUserId (urls, userId){
+return Object.entries(urls).filter(entry=> {
+	console.log(userId);
+	console.log(entry[1].userid);
+	return entry[1].userid === userId
+	})
+    .reduce((acc,entry)=>{
+    	let short = entry[0];
+    	let content = entry [1];
+    	acc[short] = content
+    	return acc
+    },[])
 }

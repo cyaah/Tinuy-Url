@@ -16,13 +16,17 @@
         <% for(let X in urls) { %>
         <tr>
           <td> <%= X %> </td>
-          <td> <%= urls[X] %> </td>
+          <td> <%= urls[X].longurl %> </td>
           
           <td>
-          	<form method="POST" action="/urls/<%=X %>/delete">
-          		<a href="http://localhost:8080/urls/<%= X %>"> edit </a>
+          	<form method="POST" action="/urls/<%=X %>/delet">
+          		
           		<button>Delete</button>
           	</form>
+            
+            <form method="POST" action="/urls/<%=X %>">
+            <button>Edit</button>
+            </form>
           </td>
         </tr>
         <% } %>  
