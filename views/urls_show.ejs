@@ -1,18 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+ <head>
   <title>TinyApp</title>
-</head>
-<body>
+ </head>
+  <body>
   <header><% include ./partials/_header.ejs %> <%= user %></header> 	
 <!--<h2><%=shortURL %> : <%= urls %></h2> -->
 	<h2>Add New URL</h2>
-<form method="POST" action="/urls/<%= shortURL %>">
+    <form method="POST" action="/urls/<%= shortURL %>">
 	   <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">    <button> update </button>
-
-
-</form>
-
-	 <header><% include ./partials/_header.ejs %></header>  
-</body>
+  </body>
 </html>

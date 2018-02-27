@@ -8,18 +8,11 @@
 const i = 2;
 
 function markActive(list, i) {
-var index = i - 1;
-  for(var j = 0; j < list.length; j++){ 
-    if(list[index].id === i ){
-    	 list[index].active = true;
-    } 
-    else{
-    	list[index].active = false;
-    	console.log(list[index].active);
-    }
-  }
-  return (list);
-
+    list.forEach(function (o) {
+        o.active = o.id === i;
+    });
+    return list;
  }
+ 
 //console.log(list);
-markActive(list,2)
+console.log(markActive(list,2));

@@ -1,25 +1,27 @@
-var express = require("express");
-var cookieParser = require("cookie-parser");
 
+var express = require("express");
+var cookieSession = require('cookie-session')
+var bcrypt = require('bcrypt');
 var app = express();
 var PORT = process.env.PORT || 8080; // default port 8080
 app.set("view engine", "ejs")
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ["light"],
+}));
 
 
 // Create our own middleware to check for a logged in user!
 function checkUser(req, res, next) {
-  // We want to leave /login and /signup available even if the user
-  // isn't logged in, for obvious reasons.
-  if (req.path.match(/login|register|delet/)) {
+  if (req.path.match(/login|register|delet|u\/./)) {
     next() // Execute next middleware or go to routes
     return
   }
   
   // Get user from session
-  const currentUser = req.cookies.userid
+  const currentUser = req.session.userid
   if (currentUser) {
     console.log('User is logged in!', currentUser)
     req.currentUser = currentUser
@@ -63,7 +65,7 @@ const users = {
  "user2": {
     //id: "Random2", 
     email: "bob@gmail.com", 
-    password: "dish"
+    password: "$2a$10$7GyEDXxCd6Yy9NhE.mxXT.dIpFkuU1ID1wcxOMil0GY7ZJx5Z9/la"
   }
 }
 
@@ -87,10 +89,10 @@ app.get("/hello", (req, res) => {
 
 //Gets a page that lists all the urls and their short forms and other functions like editing and deleting
 app.get("/urls", (req, res) => {
-	let filterUrls = filterByUserId(urlDatabase,req.cookies.userid)
+	let filterUrls = filterByUserId(urlDatabase,req.session.userid)
   let templateVars = { urls: filterUrls,
-  					   user: users[req.cookies.userid]}; // req.cookies["username"]}; || 'Anonymous' };
-  console.log('boop');
+  					   user: users[req.session.userid]}; // req.cookies["username"]}; || 'Anonymous' };
+  console.log('blah', templateVars);
 
 
   res.render("urls_index", templateVars);
@@ -103,7 +105,7 @@ app.get("/urls", (req, res) => {
  app.get("/urls/:id", (req, res) => {
   let templateVars = { shortURL: req.params.id,
                         urls: urlDatabase[req.params.id],
-                        user: users[req.cookies.id]};    //req.cookies["username"] };
+                        user: users[req.session.id]};    //req.cookies["username"] };
   res.render("urls_show", templateVars);
 });
 
@@ -126,16 +128,16 @@ app.get("/login",(req,res) =>{
 app.post("/urls/new", (req, res) => {	
 	let shortURL = generateRandomString();
 	urlDatabase[shortURL] = {
-		"longurl" : req.body.longUrl,
+		"longurl" : req.body.longURL,
 		"userid"  : req.currentUser
 	}
-  console.log('blah', req.body.longURL);  // debug statement to see POST parameters
-  res.redirect("/urls");      // Respond with 'Ok' (we will replace this)
+  console.log('blah', req.body.longURL);  
+  res.redirect("/urls");      
 });
 
 //Redirects the page to the long url page when short url is used
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL]
+  let longURL = urlDatabase[req.params.shortURL].longurl
   console.log(longURL);
   res.redirect(longURL);
 });
@@ -156,44 +158,38 @@ urlDatabase[req.params.id] = req.body.longURL;
 app.post("/login",(req, res) => {
 	let email = req.body.email
 	let password = req.body.password
+	let hashedPassword = bcrypt.hashSync(password, 10);
+  console.log(hashedPassword);
 	let currentUser = req.body.currentUser	
-	console.log(email);
-	console.log(password);
-    for (var uid in users) { 
-      if(email === users[uid].email) { 
-      	 if(password === users[uid].password) {
-	  	 	 console.log(users[uid].email);
-	  	 	 console.log(users[uid].password);
-   		  	res.cookie('userid', uid)
-		   res.redirect("/urls");
-     	  	console.log("job");
-		   
-      	 } else {
-	  	res.status(403).send("Email or Password incorrect")
-	  	console.log("403");
-      	 }
-      }
+  for (var uid in users) { 
+    if(email === users[uid].email) { 
+    	bcrypt.compare(password, users[uid].password, (err, matched) => {
+        if (matched) {
+        // set a cookie to keep track of the user
+  	  	  req.session.userid = uid;
+          res.redirect("/urls");
+   	  	  console.log("job");
+        } else {
+  	      res.status(403).send("Email or Password incorrect")
+         	console.log("403");
+    	  }
+    	}) 
+    }
 	}
-
-//res.status(403).send("Email or Password incorrect")
-
 });
 // Clears cookies after logout and redirects to main page
 app.post("/logout",(req, res) => {
-   res.clearCookie('userid');
+   req.session =null 
+   res.redirect("/login");
    
 })
  
 app.post("/register", (req, res) =>{
-	//let arr = Object.keys(users);
-	//let num = arr.length;
-	//let user = `user${num+1}`;
 	let user = generateRandomString();	
   	let email = req.body.email
   	let pass = req.body.password
-    res.cookie('userid',user)
-	//res.cookie('user',req.body.email)
-	//res.cookie('password',req.body.password)
+  	let hashedPassword = bcrypt.hashSync(pass, 10);
+    req.session.userid = user;
 
 	if(email ==="" || pass===""){
 		res.status(400).send('Please enter an email and password')
@@ -205,7 +201,7 @@ app.post("/register", (req, res) =>{
 	}
     
     else{
-	users[user] = {'email' : req.body.email, 'password' : req.body.password }
+	users[user] = {'email' : req.body.email, 'password' : hashedPassword }
      console.log(users);
 	res.redirect("/urls");
 	}
