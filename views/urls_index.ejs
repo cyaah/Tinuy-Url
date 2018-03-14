@@ -15,7 +15,11 @@
       <tbody>
         <% for(let X in urls) { %>
         <tr>
-          <td> <%= X %> </td>
+           <td>  <a href="/u/<%= X %>">
+                http://localhost:8080/u/<%= X %>
+              </a></td>
+
+         <!--  <td> <%= X %> </td> -->
           <td> <%= urls[X].longurl %> </td>
           
           <td>
